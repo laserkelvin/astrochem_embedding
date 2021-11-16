@@ -14,6 +14,7 @@ from warnings import warn
 
 import torch
 import numpy as np
+import selfies as sf
 from torch.utils.data import DataLoader, Dataset, random_split
 import pytorch_lightning as pl
 from sklearn.utils import OneHotEncoder
@@ -42,6 +43,25 @@ class SELFIESDataset(Dataset):
         return self.shape[0]
 
 
+class StringDataset(Dataset):
+    def __init__(self, path=None):
+        super().__init__()
+        if not path:
+            paths = get_paths()
+            path = paths.get("processed").joinpath("selfies.txt")
+        with open(path, "r") as read_file:
+            self.data = read_file.readlines()
+            self.data = [s.strip() for s in self.data]
+        self.translator = Translator.from_yaml(paths.get("processed").joinpath("translator.yml"))
+
+    def __getitem__(self, index) -> torch.Tensor:
+        label, _ = self.translator.tokenize(self.data[index])
+        return torch.from_numpy(label)
+
+    def __len__(self) -> int:
+        return len(self.data)
+
+
 class SELFIESData(pl.LightningDataModule):
     def __init__(self, batch_size: int = 256, num_workers: int = 0, path=None):
         super().__init__()
@@ -65,3 +85,8 @@ class SELFIESData(pl.LightningDataModule):
     def val_dataloader(self):
         return DataLoader(self.val, batch_size=self.batch_size, num_workers=self.num_workers)
 
+
+class StringDataModule(SELFIESData):
+    def __init__(self, batch_size: int = 256, num_workers: int = 0, path=None):
+        super().__init__(batch_size, num_workers, path)
+        self.dataset = StringDataset(path)
