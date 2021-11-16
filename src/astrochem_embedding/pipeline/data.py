@@ -17,7 +17,7 @@ import numpy as np
 import selfies as sf
 from torch.utils.data import DataLoader, Dataset, random_split
 import pytorch_lightning as pl
-from sklearn.utils import OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder
 
 from astrochem_embedding import get_paths
 
