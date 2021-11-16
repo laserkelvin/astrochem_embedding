@@ -1,0 +1,13 @@
+{
+  "_template": "https://github.com/laserkelvin/cookiecutter-pytorch-project",
+  "author": "Kelvin Lee",
+  "development_status": "Development Status :: 1 - Planning",
+  "email": "kin.long.kelvin.lee@gmail.com",
+  "friendly_name": "Language models for astrochemistry",
+  "github_user": "laserkelvin",
+  "gpu": "True",
+  "license": "MIT",
+  "package_name": "astrochem_embedding",
+  "project_name": "astrochem_embedding",
+  "version": "0.1.0"
+}
