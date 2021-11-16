@@ -103,9 +103,9 @@ class GRUAutoEncoder(AutoEncoder):
             batch_first=True,
         )
         decoder = nn.GRU(
-            z_dim, vocab_size, num_layers=num_layers, dropout=dropout, batch_first=True
+            z_dim, z_dim, num_layers=num_layers, dropout=dropout, batch_first=True
         )
-        output = nn.Sequential(nn.Linear(vocab_size, vocab_size), nn.Softmax(dim=-1))
+        output = nn.Sequential(nn.Linear(z_dim, vocab_size), nn.Softmax(dim=-1))
         super().__init__(embedding_dim, encoder, decoder, lr, vocab_yaml)
         self.output = output
         self.save_hyperparameters()

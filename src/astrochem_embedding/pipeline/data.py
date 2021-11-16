@@ -19,7 +19,7 @@ from torch.utils.data import DataLoader, Dataset, random_split
 import pytorch_lightning as pl
 from sklearn.preprocessing import OneHotEncoder
 
-from astrochem_embedding import get_paths
+from astrochem_embedding import get_paths, Translator
 
 
 class SELFIESDataset(Dataset):
@@ -34,7 +34,7 @@ class SELFIESDataset(Dataset):
         data = np.memmap(path, dtype=dtype, shape=shape)
         self.data = data
         self.shape = shape
-        self.encoder = OneHotEncoder(np.arange(self.data.max()), sparse=False)
+        self.encoder = OneHotEncoder(sparse=False)
 
     def __getitem__(self, index):
         return self.data[index].astype(np.int)
@@ -56,7 +56,7 @@ class StringDataset(Dataset):
 
     def __getitem__(self, index) -> torch.Tensor:
         label, _ = self.translator.tokenize(self.data[index])
-        return torch.from_numpy(label)
+        return torch.LongTensor(label)
 
     def __len__(self) -> int:
         return len(self.data)
