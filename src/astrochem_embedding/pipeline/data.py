@@ -56,10 +56,30 @@ class StringDataset(Dataset):
 
     def __getitem__(self, index) -> torch.Tensor:
         label, _ = self.translator.tokenize(self.data[index])
-        return torch.LongTensor(label)
+        label = torch.LongTensor(label)
+        return label, label
 
     def __len__(self) -> int:
         return len(self.data)
+
+
+class MaskedStringDataset(StringDataset):
+    def __init__(self, path=None):
+        super().__init__(path)
+
+    def __post_init__(self):
+        self.nop = self.alphabet.index("[nop]")
+        self.unk = self.alphabet.index("[unk]")
+
+    def __getitem__(self, index) -> torch.Tensor:
+        target, _ = self.translator.tokenize(self.data[index])
+        inp = target.copy()
+        actual_length = (inp != self.nop).sum()
+        # todo: option for multiple tokens to blanked
+        index = np.random.choice(np.arange(actual_length))
+        # replace token with unknown mask
+        inp[index] = self.unk
+        return torch.LongTensor(inp), torch.LongTensor(target)
 
 
 class SELFIESData(pl.LightningDataModule):
@@ -90,3 +110,9 @@ class StringDataModule(SELFIESData):
     def __init__(self, batch_size: int = 256, num_workers: int = 0, path=None):
         super().__init__(batch_size, num_workers, path)
         self.dataset = StringDataset(path)
+
+
+class MaskedStringDataModule(SELFIESData):
+    def __init__(self, batch_size: int = 256, num_workers: int = 0, path=None):
+        super().__init__(batch_size, num_workers, path)
+        self.dataset = MaskedStringDataset(path)

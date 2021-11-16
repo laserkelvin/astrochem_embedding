@@ -1,4 +1,5 @@
 
+from functools import cached_property
 from typing import Dict, Type, List, Union, Iterable
 from pathlib import Path
 
@@ -42,7 +43,7 @@ class Translator(object):
         assert value > 0
         self._max_length = value
 
-    @property
+    @cached_property
     def token_map(self):
         return {s: i for i, s in enumerate(self.alphabet)}
 

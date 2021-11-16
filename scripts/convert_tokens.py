@@ -29,6 +29,7 @@ lengths = Parallel(n_jobs=NUM_JOBS)(delayed(sf.len_selfies)(s) for s in tqdm(sel
 max_length = max(lengths)
 alphabet = sf.get_alphabet_from_selfies(selfs)
 alphabet.add("[nop]")
+alphabet.add("[unk]")
 alphabet = list(sorted(alphabet))
 
 translator = Translator(alphabet, max_length)

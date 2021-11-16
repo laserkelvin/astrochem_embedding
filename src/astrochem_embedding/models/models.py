@@ -38,6 +38,7 @@ class AutoEncoder(pl.LightningModule):
         self.encoder = encoder
         self.decoder = decoder
         self.metric = nn.BCELoss()
+        self.example_input_array = torch.randint(0, vocab_size, size=(64, 10))
 
     @property
     def vocab_size(self) -> int:
@@ -53,18 +54,19 @@ class AutoEncoder(pl.LightningModule):
         opt = torch.optim.Adam(self.parameters(), lr=self.hparams.lr)
         return opt
 
-    def step(self, labels, prefix: str):
-        targets = F.one_hot(labels, num_classes=self.vocab_size)
-        output = self(labels)
+    def step(self, batch, prefix: str):
+        X, Y = batch
+        targets = F.one_hot(Y, num_classes=self.vocab_size)
+        output = self(X)
         loss = self.metric(output, targets.float())
         self.log("{prefix}_loss", loss)
         return loss
 
-    def training_step(self, labels, batch_idx):
+    def training_step(self, batch, batch_idx):
         loss = self.step(labels, "train")
         return loss
 
-    def validation_step(self, labels, batch_idx):
+    def validation_step(self, batch, batch_idx):
         loss = self.step(labels, "validation")
         # get some examples
         ex_targets = labels[:10]
