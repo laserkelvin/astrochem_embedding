@@ -37,3 +37,18 @@ class CovarianceLoss(nn.Module):
         # mask out the diagonal elements, we just want to minimize covariance
         loss = covariance[mask]**2..mean()
         return loss
+
+
+class VICRegularization(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.variance = VarianceHinge()
+        self.covariance = CovarianceLoss()
+        self.invariance = nn.MSELoss()
+
+    def forward(self, z_1: torch.Tensor, z_2: torch.Tensor):
+        packed = [z_1, z_2]
+        variance = sum([self.variance(z) for z in packed])
+        covariance = sum([self.covariance(z) for z in packed])
+        invariance = self.invariance(z_1, z_2)
+        return variance, invariance, covariance
