@@ -55,9 +55,9 @@ class AutoEncoder(pl.LightningModule):
         return opt
 
     def step(self, batch, prefix: str):
-        X, Y = batch
+        X1, X2, Y = batch
         targets = F.one_hot(Y, num_classes=self.vocab_size)
-        output = self(X)
+        output = self(X1)
         loss = self.metric(output, targets.float())
         self.log("{prefix}_loss", loss)
         return loss
@@ -120,3 +120,39 @@ class GRUAutoEncoder(AutoEncoder):
         return output
 
 
+class VICGAE(GRUAutoEncoder):
+    def __init__(
+        self,
+        embedding_dim: int,
+        z_dim: int,
+        num_layers: int,
+        dropout: float = 0.0,
+        lr: float = 1e-3,
+        vocab_yaml: Union[str, None] = None
+    ):
+        super().__init__(embedding_dim, z_dim, num_layers, dropout, lr, vocab_yaml)
+        self.var_hinge = layers.VarianceHinge()
+        self.cov_loss = layers.CovarianceLoss()
+
+    def _vic_regularization(self, batch):
+        X1, X2, Y = batch
+        embeddings_1 = self.embedding(X1)
+        embeddings_2 = self.embedding(X2)
+        v = sum([self.var_hinge(e) for e in [embeddings_1, embeddings_2]])
+        # now get the covariance
+        c = self.cov_loss(embeddings_1) + self.cov_loss(embeddings_2)
+        # now the invariance lol
+        i = F.mse_loss(embeddings_1, embeddings_2)
+        return v,i,c
+
+    def step(self, batch, prefix: str):
+        X1, X2, Y = batch
+        targets = F.one_hot(Y, num_classes=self.vocab_size)
+        output_1 = self(X1)
+        output_2 = self(X2)
+        loss = self.metric(output, targets.float())
+        # include the VIC regularization
+        v, i, c = self._vic_regularization(batch)
+        loss += v + i + c
+        self.log("{prefix}_loss", {"loss": loss, "v": v, "i": i, "c": c})
+        return loss
