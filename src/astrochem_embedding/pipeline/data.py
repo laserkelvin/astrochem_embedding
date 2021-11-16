@@ -57,7 +57,7 @@ class StringDataset(Dataset):
     def __getitem__(self, index) -> torch.Tensor:
         label, _ = self.translator.tokenize(self.data[index])
         label = torch.LongTensor(label)
-        return label, label
+        return label, label, label
 
     def __len__(self) -> int:
         return len(self.data)
@@ -73,13 +73,16 @@ class MaskedStringDataset(StringDataset):
 
     def __getitem__(self, index) -> torch.Tensor:
         target, _ = self.translator.tokenize(self.data[index])
-        inp = target.copy()
-        actual_length = (inp != self.nop).sum()
+        input_1, input_2 = target.copy(), target.copy()
+        actual_length = (input_1 != self.nop).sum()
         # todo: option for multiple tokens to blanked
-        index = np.random.choice(np.arange(actual_length))
+        indices = np.arange(actual_length)
+        index_1 = np.random.choice(indices)
+        index_2 = np.random.choice(indices)
         # replace token with unknown mask
-        inp[index] = self.unk
-        return torch.LongTensor(inp), torch.LongTensor(target)
+        input_1[index_1] = self.unk
+        input_2[index_2] = self.unk
+        return torch.LongTensor(input_1), torch.LongTensor(input_2), torch.LongTensor(target)
 
 
 class SELFIESData(pl.LightningDataModule):
