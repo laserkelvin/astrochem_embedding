@@ -96,6 +96,11 @@ class Translator(object):
             data = yaml.load(read_file)
         return cls(data.get("alphabet"), data.get("max_length"))
 
+    @classmethod
+    def from_pretrained(cls):
+        path = get_pretrained_path().joinpath("translator.yml")
+        return cls.from_yaml(path)
+
     def __repr__(self) -> str:
         return f"Translator with {len(self.alphabet)} tokens, padded to {self.max_length} length."
 
