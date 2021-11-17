@@ -66,15 +66,13 @@ class StringDataset(Dataset):
 class MaskedStringDataset(StringDataset):
     def __init__(self, path=None):
         super().__init__(path)
-
-    def __post_init__(self):
-        self.nop = self.alphabet.index("[nop]")
-        self.unk = self.alphabet.index("[unk]")
+        self.nop = self.translator.alphabet.index("[nop]")
+        self.unk = self.translator.alphabet.index("[unk]")
 
     def __getitem__(self, index) -> torch.Tensor:
         target, _ = self.translator.tokenize(self.data[index])
         input_1, input_2 = target.copy(), target.copy()
-        actual_length = (input_1 != self.nop).sum()
+        actual_length = len(list(filter(lambda x: x != self.nop, input_1)))
         # todo: option for multiple tokens to blanked
         indices = np.arange(actual_length)
         index_1 = np.random.choice(indices)

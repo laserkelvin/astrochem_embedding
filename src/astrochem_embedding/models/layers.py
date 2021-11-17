@@ -23,7 +23,7 @@ class VarianceHinge(nn.Module):
         # variance throughout the batch for each embedding dimension
         variance = 1. - torch.sqrt(embedding.var(dim=0) + 1e-10)
         # average along embedding dimensions
-        return torch.maximum(0., variance).mean()
+        return torch.maximum(torch.zeros_like(variance), variance).mean()
 
 
 class CovarianceLoss(nn.Module):
@@ -35,7 +35,7 @@ class CovarianceLoss(nn.Module):
         covariance = embedding.T.cov()
         mask = ~torch.eye(*covariance.shape, device=covariance.device, dtype=bool)
         # mask out the diagonal elements, we just want to minimize covariance
-        loss = covariance[mask]**2..mean()
+        loss = (covariance[mask]**2.).mean()
         return loss
 
 

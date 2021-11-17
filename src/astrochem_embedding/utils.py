@@ -59,9 +59,20 @@ class Translator(object):
     def __len__(self) -> int:
         return len(self.alphabet)
 
-    def tokenize(self, selfies: str):
+    def tokenize(self, selfies: str) -> List[int]:
+        """
+        For backwards compatibility, this tokenizes SELFIES
+        for now.
+        """
+        return tokenize_selfies(selfies)
+
+    def tokenize_selfies(self, selfies: str) -> List[int]:
         label, onehot = sf.selfies_to_encoding(selfies, self.token_map, self.max_length)
         return label, onehot
+
+    def tokenize_smiles(self, smiles: str) -> List[int]:
+        selfie = sf.encoder(smiles)
+        return self.tokenize_selfies(selfie)
 
     def index_to_character(self, index: int) -> str:
         return self.alphabet[index]

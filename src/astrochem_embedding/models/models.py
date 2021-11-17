@@ -19,6 +19,7 @@ import pytorch_lightning as pl
 from astrochem_embedding.models import layers
 from astrochem_embedding import get_paths, Translator
 
+
 class AutoEncoder(pl.LightningModule):
     def __init__(
         self,
@@ -47,8 +48,21 @@ class AutoEncoder(pl.LightningModule):
     def tokens2smiles(self, tokens: Iterable[int]):
         return self.vocab.indices_to_smiles(tokens)
 
-    def embed(self, X):
-        return self.encoder(self.embedding(X))
+    @torch.no_grad()
+    def embed_molecule(self, X: torch.Tensor) -> torch.Tensor:
+        if X.ndim == 1:
+            X.unsqueeze_(0)
+        # shape [N, S, D] for S sequence length and D features
+        word_embeddings = self.embedding(X)
+        mask = X != self.vocab.alphabet.index("[nop]")
+        z = torch.einsum("ijk,ij->ik", word_embeddings, mask.float()) / self.hparams.embedding_dim
+        return z
+
+    @torch.no_grad()
+    def embed_smiles(self, smiles: str) -> torch.Tensor:
+        labels, _ = self.vocab.tokenize_smiles(smiles)
+        tokens = torch.LongTensor(labels)
+        return self.embed_molecule(tokens.unsqueeze(0))
 
     def configure_optimizers(self):
         opt = torch.optim.Adam(self.parameters(), lr=self.hparams.lr)
@@ -63,19 +77,19 @@ class AutoEncoder(pl.LightningModule):
         return loss
 
     def training_step(self, batch, batch_idx):
-        loss = self.step(labels, "train")
+        loss = self.step(batch, "train")
         return loss
 
     def validation_step(self, batch, batch_idx):
-        loss = self.step(labels, "validation")
+        loss = self.step(batch, "validation")
         # get some examples
-        ex_targets = labels[:10]
-        with torch.no_grad():
-            ex_outputs = self(ex_targets)
-        ex_targets = ex_targets.cpu().numpy()
-        ex_outputs = ex_outputs.argmax(dim=-1).cpu().numpy()
-        target_smiles = [self.tokens2smiles(t) for t in ex_targets]
-        output_smiles = [self.tokens2smiles(t) for t in ex_outputs]
+        #ex_targets = labels[:10]
+        #with torch.no_grad():
+        #    ex_outputs = self(ex_targets)
+        #ex_targets = ex_targets.cpu().numpy()
+        #ex_outputs = ex_outputs.argmax(dim=-1).cpu().numpy()
+        #target_smiles = [self.tokens2smiles(t) for t in ex_targets]
+        #output_smiles = [self.tokens2smiles(t) for t in ex_outputs]
         #self.log("example_smiles",
         #    {"targets": target_smiles, "outputs": output_smiles}
         #)
@@ -135,18 +149,26 @@ class VICGAE(GRUAutoEncoder):
 
     def _vic_regularization(self, batch):
         X1, X2, Y = batch
-        embeddings_1 = self.embedding(X1)
-        embeddings_2 = self.embedding(X2)
-        v, i, c = self.vic_reg(embeddings_1, embeddings_2)
+        mask_1 = X1 != self.vocab.alphabet.index("[nop]")
+        mask_2 = X2 != self.vocab.alphabet.index("[nop]")
+        # shape [N, S, Z] for S sequence length
+        word_z_1 = self.embedding(X1)
+        word_z_2 = self.embedding(X2)
+        # idea behind summmation is to have molecule = sum of characters
+        z_1 = torch.einsum("ijk,ij->ik", word_z_1, mask_1.float()) / self.hparams.embedding_dim
+        z_2 = torch.einsum("ijk,ij->ik", word_z_2, mask_2.float()) / self.hparams.embedding_dim
+        v, i, c = self.vic_reg(z_1, z_2)
         return v,i,c
 
     def step(self, batch, prefix: str):
         X1, X2, Y = batch
-        targets = F.one_hot(Y, num_classes=self.vocab_size)
+        targets = F.one_hot(Y, num_classes=self.vocab_size).float()
         output_1 = self(X1)
         output_2 = self(X2)
         # include the VIC regularization
         v, i, c = self._vic_regularization(batch)
-        loss = self.metric(output, targets.float()) + v + i + c
-        self.log("{prefix}_loss", {"loss": loss, "v": v, "i": i, "c": c})
+        loss_1 = self.metric(output_1, targets)
+        loss_2 = self.metric(output_2, targets)
+        loss = loss_1 + loss_2 + v + i + c
+        self.log(f"{prefix}_loss", {"loss": loss, "v": v, "i": i, "c": c})
         return loss
