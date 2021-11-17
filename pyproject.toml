@@ -13,7 +13,8 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
 ]
-include = ["models/VICGAE.ckpt", "models/translator.yml"]
+include = ["src/astrochem_embedding/models/pretrained/VICGAE.ckpt", 
+"src/astrochem_embedding/models/pretrained/translator.yml"]
 
 [tool.poetry.urls]
 Changelog = "https://github.com/laserkelvin/astrochem_embedding/releases"
