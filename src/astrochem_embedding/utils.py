@@ -1,4 +1,3 @@
-
 from functools import cached_property
 from typing import Dict, Type, List, Union, Iterable
 from pathlib import Path
@@ -22,7 +21,7 @@ def get_paths() -> Dict[str, Type[Path]]:
         "data": top.joinpath("data"),
         "models": top.joinpath("models"),
         "notebooks": top.joinpath("notebooks"),
-        "scripts": top.joinpath("scripts")
+        "scripts": top.joinpath("scripts"),
     }
     for subfolder in ["raw", "interim", "external", "processed"]:
         paths[subfolder] = paths.get("data").joinpath(subfolder)
@@ -82,7 +81,9 @@ class Translator(object):
         return self.alphabet[index]
 
     def indices_to_selfies(self, sentence: Iterable[int]) -> str:
-        characters = [self.index_to_character(item) for item in sentence if item != "[nop]"]
+        characters = [
+            self.index_to_character(item) for item in sentence if item != "[nop]"
+        ]
         return "".join(characters)
 
     def indices_to_smiles(self, sentence: Iterable[int]) -> str:
@@ -108,5 +109,6 @@ class Translator(object):
         target = Path(yaml_path)
         yaml = YAML()
         with open(target, "w+") as write_file:
-            yaml.dump({"alphabet": self.alphabet, "max_length": self.max_length}, write_file)
-
+            yaml.dump(
+                {"alphabet": self.alphabet, "max_length": self.max_length}, write_file
+            )

@@ -1,4 +1,3 @@
-
 from astrochem_embedding import utils
 
 
@@ -15,7 +14,7 @@ def test_translator_pretrained():
 def test_translator_features():
     t = utils.Translator.from_pretrained()
     assert t.max_length == 886
-    assert t.index_to_character(624) == '[nop]'
+    assert t.index_to_character(624) == "[nop]"
     # check the tokenization for benzene
     label, onehot = t.tokenize_smiles("c1ccccc1")
     label = list(filter(lambda x: x != 624, label))

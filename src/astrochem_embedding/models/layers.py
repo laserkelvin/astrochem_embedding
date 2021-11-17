@@ -1,4 +1,3 @@
-
 """
 layers.py
 
@@ -7,7 +6,7 @@ of models.
 """
 
 import torch
-from torch import Tensor      # this is used for type annotations
+from torch import Tensor  # this is used for type annotations
 from torch import nn
 from torch.nn import functional as F
 import pytorch_lightning as pl
@@ -21,7 +20,7 @@ class VarianceHinge(nn.Module):
 
     def forward(self, embedding):
         # variance throughout the batch for each embedding dimension
-        variance = 1. - torch.sqrt(embedding.var(dim=0) + 1e-10)
+        variance = 1.0 - torch.sqrt(embedding.var(dim=0) + 1e-10)
         # average along embedding dimensions
         return torch.maximum(torch.zeros_like(variance), variance).mean()
 
@@ -35,7 +34,7 @@ class CovarianceLoss(nn.Module):
         covariance = embedding.T.cov()
         mask = ~torch.eye(*covariance.shape, device=covariance.device, dtype=bool)
         # mask out the diagonal elements, we just want to minimize covariance
-        loss = (covariance[mask]**2.).mean()
+        loss = (covariance[mask] ** 2.0).mean()
         return loss
 
 

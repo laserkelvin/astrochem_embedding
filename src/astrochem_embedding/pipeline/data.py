@@ -1,4 +1,3 @@
-
 """
 data.py
 
@@ -52,7 +51,9 @@ class StringDataset(Dataset):
         with open(path, "r") as read_file:
             self.data = read_file.readlines()
             self.data = [s.strip() for s in self.data]
-        self.translator = Translator.from_yaml(paths.get("processed").joinpath("translator.yml"))
+        self.translator = Translator.from_yaml(
+            paths.get("processed").joinpath("translator.yml")
+        )
 
     def __getitem__(self, index) -> torch.Tensor:
         label, _ = self.translator.tokenize(self.data[index])
@@ -80,7 +81,11 @@ class MaskedStringDataset(StringDataset):
         # replace token with unknown mask
         input_1[index_1] = self.unk
         input_2[index_2] = self.unk
-        return torch.LongTensor(input_1), torch.LongTensor(input_2), torch.LongTensor(target)
+        return (
+            torch.LongTensor(input_1),
+            torch.LongTensor(input_2),
+            torch.LongTensor(target),
+        )
 
 
 class SELFIESData(pl.LightningDataModule):
@@ -101,10 +106,14 @@ class SELFIESData(pl.LightningDataModule):
         return self.dataset.max() + 1
 
     def train_dataloader(self):
-        return DataLoader(self.train, batch_size=self.batch_size, num_workers=self.num_workers)
+        return DataLoader(
+            self.train, batch_size=self.batch_size, num_workers=self.num_workers
+        )
 
     def val_dataloader(self):
-        return DataLoader(self.val, batch_size=self.batch_size, num_workers=self.num_workers)
+        return DataLoader(
+            self.val, batch_size=self.batch_size, num_workers=self.num_workers
+        )
 
 
 class StringDataModule(SELFIESData):
