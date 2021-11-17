@@ -8,8 +8,10 @@ either `torch`, other packages, or in `astrochem_embedding.layers`.
 """
 
 from typing import Union, Iterable
+from pathlib import Path
 
 import torch
+import joblib
 from torch import Tensor      # this is used for type annotations
 from torch import nn
 from torch.nn import functional as F
@@ -97,8 +99,9 @@ class AutoEncoder(pl.LightningModule):
 
     @classmethod
     def from_pretrained(cls):
-        path = get_paths().get("models")
-        return cls.load_from_checkpoint(path.joinpath(f"{cls.__name__}.ckpt"))
+        module_path = Path(__file__).parents[0]
+        pretrained_path = module_path.joinpath(f"pretrained/{cls.__name__}.pkl")
+        return joblib.load(pretrained_path)
 
 
 class GRUAutoEncoder(AutoEncoder):
