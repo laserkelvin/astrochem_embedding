@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "astrochem_embedding"
-version = "0.1.1"
+version = "0.1.2"
 description = "Language models for astrochemistry"
 authors = ["Kelvin Lee <kin.long.kelvin.lee@gmail.com>"]
 license = "MIT"
@@ -13,7 +13,7 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
 ]
-include = ["src/astrochem_embedding/models/pretrained/VICGAE.ckpt", 
+include = ["src/astrochem_embedding/models/pretrained/VICGAE.pkl", 
 "src/astrochem_embedding/models/pretrained/translator.yml"]
 
 [tool.poetry.urls]
