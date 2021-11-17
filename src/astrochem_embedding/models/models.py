@@ -19,7 +19,7 @@ import wandb
 import pytorch_lightning as pl
 
 from astrochem_embedding.models import layers
-from astrochem_embedding import get_paths, Translator
+from astrochem_embedding import get_paths, get_pretrained_path, Translator
 
 
 class AutoEncoder(pl.LightningModule):
@@ -34,7 +34,7 @@ class AutoEncoder(pl.LightningModule):
         super().__init__()
         if not vocab_yaml:
             paths = get_paths()
-            vocab_yaml = paths.get("models").joinpath("translator.yml")
+            vocab_yaml = get_pretrained_path().joinpath("translator.yml")
         self.vocab = Translator.from_yaml(vocab_yaml)
         vocab_size = len(self.vocab)
         self.embedding = nn.Embedding(vocab_size, embedding_dim)
@@ -99,8 +99,7 @@ class AutoEncoder(pl.LightningModule):
 
     @classmethod
     def from_pretrained(cls):
-        module_path = Path(__file__).parents[0]
-        pretrained_path = module_path.joinpath(f"pretrained/{cls.__name__}.pkl")
+        pretrained_path = get_pretrained_path().joinpath(f"{cls.__name__}.pkl")
         return joblib.load(pretrained_path)
 
 
@@ -116,7 +115,7 @@ class GRUAutoEncoder(AutoEncoder):
     ):
         if not vocab_yaml:
             paths = get_paths()
-            vocab_yaml = paths.get("processed").joinpath("translator.yml")
+            vocab_yaml = get_pretrained_path().joinpath("translator.yml")
         translator = Translator.from_yaml(vocab_yaml)
         vocab_size = len(translator)
         encoder = nn.GRU(
