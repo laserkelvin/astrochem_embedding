@@ -1,4 +1,10 @@
-cff-version: 0.0.0
+cff-version: 0.1.2
 message: "If you use this software, please cite it as below."
 title: "Language models for astrochemistry"
-version: 0.1.0
+version: 0.1.2
+authors:
+    - family-names: "Lee"
+      given-names: "Kin Long Kelvin"
+      orcid: "https://orcid.org/0000-0002-1903-9242"
+date-released: 2021-11-17
+url: "https://github.com/laserkelvin/astrochem_embedding"
