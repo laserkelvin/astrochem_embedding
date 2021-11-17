@@ -95,6 +95,11 @@ class AutoEncoder(pl.LightningModule):
         #)
         return loss
 
+    @classmethod
+    def from_pretrained(cls):
+        path = get_paths().get("models")
+        return cls.load_from_checkpoint(path.joinpath(f"{cls.__name__}.ckpt"))
+
 
 class GRUAutoEncoder(AutoEncoder):
     def __init__(
@@ -129,7 +134,7 @@ class GRUAutoEncoder(AutoEncoder):
     def forward(self, X):
         embeddings = self.embedding(X)
         z_o, z_h = self.encoder(embeddings)
-        o_o, o_h = self.decoder(z_o)
+        o_o, o_h = self.decoder(z_o, z_h)
         output = self.output(o_o)
         return output
 
