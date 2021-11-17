@@ -50,3 +50,11 @@ def test_vicgae_step():
     # expect a tensor of shape batch, seq_length
     test_array = torch.randint(0, 10, size=(32, 10))
     model.step((test_array, test_array, test_array), "test")
+
+
+def test_load_gruautoencoder():
+    model = models.GRUAutoEncoder.from_pretrained()
+
+
+def test_load_vicgae():
+    model = models.VICGAE.from_pretrained()
