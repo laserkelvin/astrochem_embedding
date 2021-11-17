@@ -113,7 +113,7 @@ class GRUAutoEncoder(AutoEncoder):
     ):
         if not vocab_yaml:
             paths = get_paths()
-            vocab_yaml = paths.get("processed").joinpath("translator.yml")
+            vocab_yaml = paths.get("models").joinpath("translator.yml")
         translator = Translator.from_yaml(vocab_yaml)
         vocab_size = len(translator)
         encoder = nn.GRU(
