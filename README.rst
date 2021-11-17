@@ -45,10 +45,25 @@ are different from astrochemistry, such as the emphasis on transient (e.g. open-
 molecules and isotopologues.
 
 To support these aspects, we provide here light-weight language models (currently just
-a GRU seq2seq model) based off of :selfie:`SELFIES` syntax and PyTorch. Elements of
+a GRU seq2seq model) based off of `SELFIES`_ syntax and PyTorch. Elements of
 this project are designed to strike a balance between research agility and use for
 production, and a lot of emphasis is placed on reproducibility using PyTorch Lightning
 and a general user interface that doesn't force the user to know how to develop neural networks.
+
+The current highlight of this package is the ``VICGAE``, or variance-invariance-covariance
+regularized GRU autoencoder (I guess probably ``VICGRUAE`` is more accurate?). I intend to
+write this up in a more detailed form in the near future, but the basic premise is this:
+a pair of GRUs form a seq2seq model, whose task is to complete SELFIES strings based off
+of randomly masked tokens within the molecule. To improve chemical representation learning,
+the VIC regularization uses self-supervision to ensure the token embeddings are chemically
+descriptive: we encourage variance (e.g. [CH2] is different from [OH]), invariance (e.g. 
+isotopic substitution should give more or less the same molecule), and covariance (i.e.
+minimizing information sharing between embedding dimensions). While the GRU does the actual
+SELFIES reconstruction, the VIC regularization is done at the token embedding level.
+
+This has been tested on a few simple comparisons with cosine similarity, comparing isotopic
+substitution, element substitution (i.e. C/Si/Ge), and functional group replacement; things
+seem to work well for these simple cases.
 
 
 Requirements
@@ -226,3 +241,4 @@ a fork of  `@cjolowicz`_'s `Hypermodern Python Cookiecutter`_ template.
 .. _Usage: https://astrochem_embedding.readthedocs.io/en/latest/usage.html
 .. _semantic: https://gist.github.com/joshbuchea/6f47e86d2510bce28f8e7f42ae84c716
 .. _@laserkelvin: https://github.com/laserkelvin
+.. _SELFIES: https://github.com/aspuru-guzik-group/selfies
