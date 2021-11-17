@@ -29,6 +29,10 @@ def get_paths() -> Dict[str, Type[Path]]:
     return paths
 
 
+def get_pretrained_path() -> Type[Path]:
+    return src_path.parent.joinpath("models/pretrained")
+
+
 class Translator(object):
     def __init__(self, alphabet: List[str], max_length: int):
         self.alphabet = alphabet
