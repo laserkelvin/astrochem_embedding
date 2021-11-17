@@ -32,7 +32,7 @@ class AutoEncoder(pl.LightningModule):
         super().__init__()
         if not vocab_yaml:
             paths = get_paths()
-            vocab_yaml = paths.get("processed").joinpath("translator.yml")
+            vocab_yaml = paths.get("models").joinpath("translator.yml")
         self.vocab = Translator.from_yaml(vocab_yaml)
         vocab_size = len(self.vocab)
         self.embedding = nn.Embedding(vocab_size, embedding_dim)
