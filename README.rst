@@ -39,38 +39,67 @@ Language models for astrochemistry
 Features
 --------
 
-* TODO
+The goal of this project is to provide off the shelf language models that work
+for studies in astrochemistry; the needs for general molecule discovery/chemistry
+are different from astrochemistry, such as the emphasis on transient (e.g. open-shell)
+molecules and isotopologues.
+
+To support these aspects, we provide here light-weight language models (currently just
+a GRU seq2seq model) based off of :selfie:`SELFIES` syntax and PyTorch. Elements of
+this project are designed to strike a balance between research agility and use for
+production, and a lot of emphasis is placed on reproducibility using PyTorch Lightning
+and a general user interface that doesn't force the user to know how to develop neural networks.
 
 
 Requirements
 ------------
 
-* TODO
+This package requires Python 3.8+, as it uses some decorators only available after 3.7.
 
 
 Installation
 ------------
 
-The project environment for Language models for astrochemistry is controlled by `conda` 
-and `poetry`; the former for maintaining the Python environment, as well as additional 
-libraries like CUDA, and the latter for Python specific dependencies. There is
-a bit of overlap between these two tools, however mostly because `conda`
-is not great for resolving dependencies, and `poetry` can't handle things
-that aren't Python (e.g. MPI, MKL).
+The simplest way to get ``astrochem_embedding`` is through PyPI:
 
-The recommended procedure from scratch is to follow these steps:
+.. code:: console
+    
+    $ pip install astrochem_embedding
+
+If you're interested in development, want to train your own model,
+or make sure you can take advantage of GPU acceleration, I recommend
+using ``conda`` for your environment specification:
 
 .. code:: console
 
-   $ conda create -n astrochem_embedding python=3.7
+   $ conda create -n astrochem_embedding python=3.8
    $ conda activate astrochem_embedding
    $ pip install poetry
    $ poetry install
+   $ conda install -c pytorch torch torchvision cudatoolkit=11.3
 
 Usage
 -----
 
-Please see the `Command-line Reference <Usage_>`_ for details.
+The quickest way to get started is by loading a pre-trained model:
+
+.. code:: python
+
+    >>> from astrochem_embedding import VICGAE
+    >>> import torch
+    >>> model = VICGAE.from_pretrained()
+    >>> model.embed_smiles("c1ccccc1")
+
+will return a `torch.Tensor`. For now the general interface doesn't
+support batching SMILES just yet, and so to operate on many SMILES
+strings would simply require looping:
+
+.. code:: python
+
+    >>> smiles = ["c1ccccc1", "[C]#N", "[13c]1ccccc1"]
+    >>> embeddings = torch.stack([model.embed_smiles(s) for s in smiles])
+    # optionally convert back to NumPy arrays
+    >>> numpy_embeddings = embeddings.numpy()
 
 
 Project Structure
