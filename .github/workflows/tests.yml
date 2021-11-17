@@ -70,7 +70,7 @@ jobs:
         run: poetry install
 
       - name: Run PyTest
-        run: pytest
+        run: poetry run pytest
 
   coverage:
     runs-on: ubuntu-latest
