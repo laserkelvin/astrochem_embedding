@@ -14,8 +14,8 @@ def test_translator_pretrained():
 def test_translator_features():
     t = utils.Translator.from_pretrained()
     assert t.max_length == 886
-    assert t.index_to_character(624) == "[nop]"
+    assert t.index_to_character(632) == "[nop]"
     # check the tokenization for benzene
     label, onehot = t.tokenize_smiles("c1ccccc1")
-    label = list(filter(lambda x: x != 624, label))
-    assert label == [375, 253, 375, 253, 375, 253, 528, 246]
+    label = list(filter(lambda x: x != 632, label))
+    assert label == [373, 250, 373, 250, 373, 250, 528, 242]

@@ -1,4 +1,3 @@
-
 from joblib import Parallel, delayed
 from selfies import encoder
 from rdkit import Chem
@@ -16,13 +15,14 @@ def error_selfies(smi: str):
 def conditional(smi: str) -> bool:
     return all([Chem.MolFromSmiles(smi), "." not in smi])
 
+
 paths = get_paths()
 
 all_smiles = []
 
 files = [
     paths.get("raw").joinpath("collected_smiles.smi"),
-    paths.get("interim").joinpath("kida_isotopologues.smi")
+    paths.get("interim").joinpath("kida_isotopologues.smi"),
 ]
 
 for f in files:
