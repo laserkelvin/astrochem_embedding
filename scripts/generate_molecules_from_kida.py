@@ -40,17 +40,8 @@ with open(paths.get("interim").joinpath("kida.smi"), "w+") as write_file:
         write_file.write(f"{smi}\n")
 
 # exhaustively generate every isotopologues without hydrogen
-all_isos = isotopologues_from_file(
-    paths.get("interim").joinpath("kida.smi"), 24, explicit_h=False
-)
-
-# generate deuterium isotoplogues as well
-rng = np.random.default_rng(2105)
-num_smiles = len(smiles)
-indices = np.arange(num_smiles)
-chosen = rng.choice(indices, int(num_smiles * 0.4))
-for i in chosen:
-    smi = smiles[i]
+all_isos = []
+for smi in smiles:
     if "c" not in smi:
         all_isos.extend(generate_all_isos(smi, explicit_h=True))
 all_isos = list(set(all_isos))
