@@ -1,4 +1,3 @@
-
 import pandas as pd
 from rdkit import Chem
 from astrochem_ml.smiles.isotopes import isotopologues_from_file
@@ -28,7 +27,9 @@ with open(paths.get("interim").joinpath("kida.smi"), "w+") as write_file:
         if smi:
             write_file.write(f"{smi}\n")
 
-all_isos = isotopologues_from_file(paths.get("interim").joinpath("kida.smi"), 8, explicit_h=True)
+all_isos = isotopologues_from_file(
+    paths.get("interim").joinpath("kida.smi"), 24, explicit_h=True
+)
 
 with open(paths.get("interim").joinpath("kida_isotopologues.smi"), "w+") as write_file:
     for iso in all_isos:

@@ -1,8 +1,11 @@
-
 import torch
 import pytorch_lightning as pl
 
-from astrochem_embedding.pipeline.data import SELFIESData, StringDataModule, MaskedStringDataModule
+from astrochem_embedding.pipeline.data import (
+    SELFIESData,
+    StringDataModule,
+    MaskedStringDataModule,
+)
 from astrochem_embedding import get_paths
 from astrochem_embedding.models import models
 
@@ -19,7 +22,9 @@ model = models.VICGAE(EMBEDDING_DIM, Z_DIM, NUM_LAYERS, lr=LR)
 
 data = MaskedStringDataModule(BATCH_SIZE, NUM_WORKERS)
 
-logger = pl.loggers.TensorBoardLogger("tb_logs", name="VICAstrochemEmbedder", log_graph=True)
+logger = pl.loggers.TensorBoardLogger(
+    "tb_logs", name="VICAstrochemEmbedder", log_graph=True
+)
 summarizer = pl.callbacks.ModelSummary(max_depth=-1)
 
 trainer = pl.Trainer(max_epochs=5, callbacks=[summarizer], gpus=1, logger=logger)

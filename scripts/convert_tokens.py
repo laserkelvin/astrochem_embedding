@@ -9,15 +9,16 @@ from astrochem_embedding import get_paths, Translator
 
 NUM_JOBS = 24
 
+
 def get_label(selfie: str, translator, index: int, output_array: np.ndarray):
     label, _ = translator.tokenize(selfie)
-    output_array[index,:] = label
+    output_array[index, :] = label
 
 
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst."""
     for i in range(0, len(lst), n):
-        yield lst[i:i + n]
+        yield lst[i : i + n]
 
 
 paths = get_paths()
@@ -42,13 +43,13 @@ labels = np.memmap(
     paths.get("processed").joinpath("labels.npy"),
     dtype=np.uint16,
     shape=(len(selfs), max_length),
-    mode="w+"
+    mode="w+",
 )
 
-Parallel(n_jobs=NUM_JOBS)(delayed(get_label)(s, translator, i, labels) for i, s in tqdm(enumerate(selfs)))
+Parallel(n_jobs=NUM_JOBS)(
+    delayed(get_label)(s, translator, i, labels) for i, s in tqdm(enumerate(selfs))
+)
 blah = labels.copy()
 labels._mmap.close()
 
 np.save(paths.get("processed").joinpath("labels.npy"), blah)
-
-
