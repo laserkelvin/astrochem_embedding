@@ -1,8 +1,9 @@
 from typing import Union
 
 import pandas as pd
+import numpy as np
 from rdkit import Chem
-from astrochem_ml.smiles.isotopes import isotopologues_from_file
+from astrochem_ml.smiles.isotopes import isotopologues_from_file, generate_all_isos
 from joblib import Parallel, delayed
 
 from astrochem_embedding import get_paths
@@ -31,17 +32,28 @@ smiles = []
 for inchi in kida_df["InChI"]:
     smiles.append(convert_inchi_to_smiles(inchi))
 
+smiles = list(filter(lambda x: x is not None, smiles))
+
 # write out the valid KIDA SMILES to file
 with open(paths.get("interim").joinpath("kida.smi"), "w+") as write_file:
     for smi in smiles:
-        if smi:
-            write_file.write(f"{smi}\n")
+        write_file.write(f"{smi}\n")
 
-# exhaustively generate every isotopic combination to
-# the abundance of deuterium
+# exhaustively generate every isotopologues without hydrogen
 all_isos = isotopologues_from_file(
-    paths.get("interim").joinpath("kida.smi"), 24, explicit_h=True
+    paths.get("interim").joinpath("kida.smi"), 24, explicit_h=False
 )
+
+# generate deuterium isotoplogues as well
+rng = np.random.default_rng(2105)
+num_smiles = len(smiles)
+indices = np.arange(num_smiles)
+chosen = rng.choice(indices, int(num_smiles * 0.4))
+for i in chosen:
+    smi = smiles[i]
+    if "c" not in smi:
+        all_isos.extend(generate_all_isos(smi, explicit_h=True))
+all_isos = list(set(all_isos))
 
 with open(paths.get("interim").joinpath("kida_isotopologues.smi"), "w+") as write_file:
     for iso in all_isos:
