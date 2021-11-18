@@ -28,7 +28,7 @@ with open(paths.get("interim").joinpath("kida.smi"), "w+") as write_file:
         if smi:
             write_file.write(f"{smi}\n")
 
-all_isos = isotopologues_from_file(paths.get("interim").joinpath("kida.smi"), 8)
+all_isos = isotopologues_from_file(paths.get("interim").joinpath("kida.smi"), 8, explicit_h=True)
 
 with open(paths.get("interim").joinpath("kida_isotopologues.smi"), "w+") as write_file:
     for iso in all_isos:
