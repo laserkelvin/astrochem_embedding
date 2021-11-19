@@ -67,7 +67,7 @@ class Translator(object):
         For backwards compatibility, this tokenizes SELFIES
         for now.
         """
-        return tokenize_selfies(selfies)
+        return self.tokenize_selfies(selfies)
 
     def tokenize_selfies(self, selfies: str) -> List[int]:
         label, onehot = sf.selfies_to_encoding(selfies, self.token_map, self.max_length)
