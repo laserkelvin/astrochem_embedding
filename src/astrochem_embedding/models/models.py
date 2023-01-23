@@ -55,9 +55,12 @@ class AutoEncoder(pl.LightningModule):
             X.unsqueeze_(0)
         # shape [N, S, D] for S sequence length and D features
         word_embeddings = self.embedding(X)
+        # extract recursive embeddings
+        z_o, z_h = self.encoder(word_embeddings)
         mask = X != self.vocab.alphabet.index("[nop]")
+        # perform a normalized summation over non-empty tokens
         z = (
-            torch.einsum("ijk,ij->ik", word_embeddings, mask.float())
+            torch.einsum("ijk,ij->ik", z_o, mask.float())
             / self.hparams.embedding_dim
         )
         return z
