@@ -1,2 +1,3 @@
 include models/VICGAE.ckpt
+include models/GRUAutoEncoder.ckpt
 include models/translator.yml
