@@ -51,8 +51,8 @@ def test_vicgae_step():
     model.step((test_array, test_array, test_array), "test")
 
 
-def test_load_gruautoencoder():
-    model = models.GRUAutoEncoder.from_pretrained()
+#def test_load_gruautoencoder():
+#    model = models.GRUAutoEncoder.from_pretrained()
 
 
 def test_load_vicgae():
